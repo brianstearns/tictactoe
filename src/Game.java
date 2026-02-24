@@ -15,10 +15,13 @@ public class Game {
             player1 = new Player(input, 'X');
         }
 
-        System.out.print("Enter name for Player 2 (O): ");
+        System.out.print("Enter name for Player 2 OR Enter CPU for the computer (O): ");
         input = scanner.nextLine();
         if (input.isEmpty() || !input.matches("^[a-zA-Z0-9_]+$")) {
             player2 = new Player("Player 2", 'O');
+        } 
+        else if (input.equals("CPU")) {
+            player2 = new Player("CPU", 'O');
         } else {
             player2 = new Player(input, 'O');
         }
@@ -46,21 +49,23 @@ public class Game {
         boolean gameRunning = true;
         int currentPlayer = 1;
 
-        while (gameRunning) {
-            System.out.println("Current player: " + (currentPlayer == 1 ? player1 : player2));
-            System.out.print("Enter column (1 - " + (size) + "): ");
-            Scanner inputScanner = new Scanner(System.in);
-            int col = inputScanner.nextInt();
-            char symbol = currentPlayer == 1 ? 'X' : 'O';
-            board.makeMove(col - 1, symbol);
-            if(board.hasWon()) {
-                System.out.println("Congratulations " + (currentPlayer == 1 ? player1 : player2) + "! You have won the game!");
-                gameRunning = false;
-            } else if (board.isFull()) {
-                System.out.println("The game is a draw!");
-                gameRunning = false;
+        if (!player2.isCPU) {
+            while (gameRunning) {
+                System.out.println("Current player: " + (currentPlayer == 1 ? player1 : player2));
+                System.out.print("Enter column (1 - " + (size) + "): ");
+                Scanner inputScanner = new Scanner(System.in);
+                int col = inputScanner.nextInt();
+                char symbol = currentPlayer == 1 ? 'X' : 'O';
+                board.makeMove(col - 1, symbol);
+                if(board.hasWon()) {
+                    System.out.println("Congratulations " + (currentPlayer == 1 ? player1 : player2) + "! You have won the game!");
+                    gameRunning = false;
+                } else if (board.isFull()) {
+                    System.out.println("The game is a draw!");
+                    gameRunning = false;
+                }
+                currentPlayer = currentPlayer == 1 ? 2 : 1;
             }
-            currentPlayer = currentPlayer == 1 ? 2 : 1;
-        }
+        } 
     }
 }

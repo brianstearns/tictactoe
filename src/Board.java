@@ -57,37 +57,75 @@ public class Board {
     }
 
     public boolean hasWon() {
+        int winLength = 4;
+        
         // Check rows
         for (int i = 0; i < rows; i++) {
-            char first = boardArray[i][0];
-            if (first != '-' && allEqual(boardArray[i], first)) {
-                System.out.println("Player " + first + " has won!");
-                return true;
+            for (int j = 0; j <= rows - winLength; j++) {
+                char first = boardArray[i][j];
+                if (first != '-' && checkConsecutive(boardArray[i], j, winLength, first)) {
+                    System.out.println("Player " + first + " has won!");
+                    return true;
+                }
             }
         }
 
         // Check columns
         for (int j = 0; j < rows; j++) {
-            char first = boardArray[0][j];
-            if (first != '-' && allEqual(getColumn(j), first)) {
-                System.out.println("Player " + first + " has won!");
-                return true;
+            char[] col = getColumn(j);
+            for (int i = 0; i <= rows - winLength; i++) {
+                char first = col[i];
+                if (first != '-' && checkConsecutive(col, i, winLength, first)) {
+                    System.out.println("Player " + first + " has won!");
+                    return true;
+                }
             }
         }
 
-        // Check diagonals
-        char first = boardArray[0][0];
-        if (first != '-' && allEqual(getDiagonal(0, 0, 1, 1), first)) {
-            System.out.println("Player " + first + " has won!");
-            return true;
+        // Check diagonals (top-left to bottom-right)
+        for (int startRow = 0; startRow <= rows - winLength; startRow++) {
+            for (int startCol = 0; startCol <= rows - winLength; startCol++) {
+                char first = boardArray[startRow][startCol];
+                if (first != '-' && checkDiagonalConsecutive(startRow, startCol, 1, 1, winLength, first)) {
+                    System.out.println("Player " + first + " has won!");
+                    return true;
+                }
+            }
         }
 
-        first = boardArray[0][rows - 1];
-        if (first != '-' && allEqual(getDiagonal(0, rows - 1, 1, -1), first)) {
-            System.out.println("Player " + first + " has won!");
-            return true;
+        // Check diagonals (top-right to bottom-left)
+        for (int startRow = 0; startRow <= rows - winLength; startRow++) {
+            for (int startCol = winLength - 1; startCol < rows; startCol++) {
+                char first = boardArray[startRow][startCol];
+                if (first != '-' && checkDiagonalConsecutive(startRow, startCol, 1, -1, winLength, first)) {
+                    System.out.println("Player " + first + " has won!");
+                    return true;
+                }
+            }
         }
         return false;
+    }
+
+    private boolean checkConsecutive(char[] array, int startIndex, int length, char symbol) {
+        for (int i = startIndex; i < startIndex + length; i++) {
+            if (array[i] != symbol) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean checkDiagonalConsecutive(int startRow, int startCol, int deltaRow, int deltaCol, int length, char symbol) {
+        int row = startRow;
+        int col = startCol;
+        for (int i = 0; i < length; i++) {
+            if (boardArray[row][col] != symbol) {
+                return false;
+            }
+            row += deltaRow;
+            col += deltaCol;
+        }
+        return true;
     }
 
     public boolean isFull() {
@@ -101,15 +139,6 @@ public class Board {
         return true;
     }
 
-    private boolean allEqual(char[] row, char symbol) {
-        for (char c : row) {
-            if (c != symbol) {
-                return false;
-            }
-        }
-        return true;
-    }
-
     private char[] getColumn(int col) {
         char[] column = new char[rows];
         for (int i = 0; i < rows; i++) {
@@ -118,15 +147,16 @@ public class Board {
         return column;
     }
 
-    private char[] getDiagonal(int startRow, int startCol, int deltaRow, int deltaCol) {
-        char[] diagonal = new char[rows];
-        int row = startRow;
-        int col = startCol;
-        for (int i = 0; i < rows; i++) {
-            diagonal[i] = boardArray[row][col];
-            row += deltaRow;
-            col += deltaCol;
+
+    public int getCPUMove() {
+        for (int col = 0; col < rows; col++) {
+            for (int row = rows - 1; row >= 0; row--) {
+                if (boardArray[row][col] == '-') {
+                    return col;
+                }
+            }
         }
-        return diagonal;
+        return -1; // No valid moves
     }
+
 }

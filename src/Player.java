@@ -3,9 +3,14 @@ package src;
 public class Player {
     String name;
     char symbol;
+    boolean isCPU = false;
 
-    public Player(String name, char symbol) {
-        this.name = name;
+    public Player(String inputName, char symbol) {
+        if (inputName == "CPU") {
+            isCPU = true;
+        } else {
+            this.name = inputName;
+        }
         this.symbol = symbol;
     }
 
