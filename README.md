@@ -15,4 +15,4 @@ A classic Tic Tac Toe game implementation written in Java. Utilizes the command 
 
 Clone the repo and run the file:
 
-```src.game
+```src.game```
