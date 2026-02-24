@@ -1,162 +1,125 @@
 package src;
 
+/**
+ * The Board class represents the game board for Connect 4. 
+ */
 public class Board {
-    int rows;
-    char[][] boardArray;
 
-    public Board(int rows) {
-        fillBoard(rows);
-    }
+    private int size;
+    private char[][] grid;
 
+    public Board(int size) {
+        this.size = size;
+        grid = new char[size][size];
 
-    public void fillBoard(int inputRows) {
-        this.rows = inputRows - 1;
-        boardArray = new char[rows][rows];
-        for(int i = 0; i < rows; i++) {
-            for(int j = 0; j < rows; j++) {
-                boardArray[i][j] = '-';
+        for (int r = 0; r < size; r++) {
+            for (int c = 0; c < size; c++) {
+                grid[r][c] = '-';
             }
         }
     }
 
-    public Board() {
-        this(3);
-    }
-    
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        for(int i = 0; i < rows; i++) {
-            for(int j = 0; j < rows; j++) {
-                sb.append(boardArray[i][j]).append(" ");
-            }
-            sb.append("\n");
-        }
-        return sb.toString();
-    }
+    /**
+     * Attempts to drop a piece with the given symbol into the specified column. 
+     * @param column The index of the column where the piece should be dropped (0-based index).
+     * @param symbol The character symbol representing the player's piece (e.g., 'X' or 'O').
+     * @return true if the piece was successfully dropped into the column; false if the column is full and the piece cannot be dropped.
+     */
+    public boolean dropPiece(int column, char symbol) {
 
-    public char[][] getBoardArray() {
-        return boardArray;
-    }
-
-    public void makeMove(int col, char player) {
-        boolean validMove = false;
-        while(!validMove) {
-            for (int row = rows - 1; row >= 0; row--) {
-                if (boardArray[row][col] == '-') {
-                    boardArray[row][col] = player;
-                    validMove = true;
-                    break;
-                }
-            }
-            if (!validMove) {
-                System.out.println("Column is full. Try a different column.");
-                return;
+        for (int row = size - 1; row >= 0; row--) {
+            if (grid[row][column] == '-') {
+                grid[row][column] = symbol;
+                return true;
             }
         }
-        System.out.println(this);
+
+        return false; 
     }
 
-    public boolean hasWon() {
-        int winLength = 4;
-        
-        // Check rows
-        for (int i = 0; i < rows; i++) {
-            for (int j = 0; j <= rows - winLength; j++) {
-                char first = boardArray[i][j];
-                if (first != '-' && checkConsecutive(boardArray[i], j, winLength, first)) {
-                    System.out.println("Player " + first + " has won!");
+    /**
+     * Returns the current state of the board as a 2D char array. 
+     * @return A 2D char array representing the grid of the board
+     */
+    public char[][] getGrid() {
+        return grid;
+    }
+
+    /**
+     * Checks if the board is full by verifying if there are any empty cells (represented by '-') in the top row of the grid.
+     * @return true if the board is full (no empty cells in the top row), indicating that no more moves can be made; false otherwise.
+     */
+    public boolean isFull() {
+        for (int col = 0; col < size; col++) {
+            if (grid[0][col] == '-') {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Checks if the given symbol has won the game by having 4 in a row horizontally, vertically, or diagonally.
+     * @param symbol The character symbol representing the player (e.g., 'X' or 'O') for whom we want to check the win condition.
+     * @return true if the specified symbol has achieved 4 in a row in any direction, indicating a win; false otherwise.
+     */
+    public boolean checkWin(char symbol) {
+
+        // Horizontal
+        for (int r = 0; r < size; r++) {
+            for (int c = 0; c <= size - 4; c++) {
+                if (grid[r][c] == symbol &&
+                    grid[r][c+1] == symbol &&
+                    grid[r][c+2] == symbol &&
+                    grid[r][c+3] == symbol) {
                     return true;
                 }
             }
         }
 
-        // Check columns
-        for (int j = 0; j < rows; j++) {
-            char[] col = getColumn(j);
-            for (int i = 0; i <= rows - winLength; i++) {
-                char first = col[i];
-                if (first != '-' && checkConsecutive(col, i, winLength, first)) {
-                    System.out.println("Player " + first + " has won!");
+        for (int c = 0; c < size; c++) {
+            for (int r = 0; r <= size - 4; r++) {
+                if (grid[r][c] == symbol &&
+                    grid[r+1][c] == symbol &&
+                    grid[r+2][c] == symbol &&
+                    grid[r+3][c] == symbol) {
                     return true;
                 }
             }
         }
 
-        // Check diagonals (top-left to bottom-right)
-        for (int startRow = 0; startRow <= rows - winLength; startRow++) {
-            for (int startCol = 0; startCol <= rows - winLength; startCol++) {
-                char first = boardArray[startRow][startCol];
-                if (first != '-' && checkDiagonalConsecutive(startRow, startCol, 1, 1, winLength, first)) {
-                    System.out.println("Player " + first + " has won!");
+        for (int r = 0; r <= size - 4; r++) {
+            for (int c = 0; c <= size - 4; c++) {
+                if (grid[r][c] == symbol &&
+                    grid[r+1][c+1] == symbol &&
+                    grid[r+2][c+2] == symbol &&
+                    grid[r+3][c+3] == symbol) {
                     return true;
                 }
             }
         }
 
-        // Check diagonals (top-right to bottom-left)
-        for (int startRow = 0; startRow <= rows - winLength; startRow++) {
-            for (int startCol = winLength - 1; startCol < rows; startCol++) {
-                char first = boardArray[startRow][startCol];
-                if (first != '-' && checkDiagonalConsecutive(startRow, startCol, 1, -1, winLength, first)) {
-                    System.out.println("Player " + first + " has won!");
+        for (int r = 3; r < size; r++) {
+            for (int c = 0; c <= size - 4; c++) {
+                if (grid[r][c] == symbol &&
+                    grid[r-1][c+1] == symbol &&
+                    grid[r-2][c+2] == symbol &&
+                    grid[r-3][c+3] == symbol) {
                     return true;
                 }
             }
         }
+
         return false;
     }
 
-    private boolean checkConsecutive(char[] array, int startIndex, int length, char symbol) {
-        for (int i = startIndex; i < startIndex + length; i++) {
-            if (array[i] != symbol) {
-                return false;
-            }
-        }
-        return true;
+    /**
+     * Returns the character at the specified row and column in the grid. 
+     * @param r The row index of the cell to retrieve (0-based index).
+     * @param c The column index of the cell to retrieve (0-based index).
+     * @return A char array containing the character at the specified cell. The character represents the current state of that cell on the board.
+     */
+    public char[] getCell(int r, int c) {
+        return new char[]{grid[r][c]};
     }
-
-    private boolean checkDiagonalConsecutive(int startRow, int startCol, int deltaRow, int deltaCol, int length, char symbol) {
-        int row = startRow;
-        int col = startCol;
-        for (int i = 0; i < length; i++) {
-            if (boardArray[row][col] != symbol) {
-                return false;
-            }
-            row += deltaRow;
-            col += deltaCol;
-        }
-        return true;
-    }
-
-    public boolean isFull() {
-        for (int i = 0; i < rows; i++) {
-            for (int j = 0; j < rows; j++) {
-                if (boardArray[i][j] == '-') {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
-    private char[] getColumn(int col) {
-        char[] column = new char[rows];
-        for (int i = 0; i < rows; i++) {
-            column[i] = boardArray[i][col];
-        }
-        return column;
-    }
-
-
-    public int getCPUMove() {
-        for (int col = 0; col < rows; col++) {
-            for (int row = rows - 1; row >= 0; row--) {
-                if (boardArray[row][col] == '-') {
-                    return col;
-                }
-            }
-        }
-        return -1; // No valid moves
-    }
-
 }

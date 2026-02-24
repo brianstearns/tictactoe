@@ -2,7 +2,10 @@ package src;
 
 import java.util.Scanner;
 
-public class Game {
+/**
+ * The GameRunner class serves as the entry point for the Connect 4 game. 
+ */
+public class GameRunner {
     public static void main(String[] args) {
         Player player1, player2;
 
@@ -53,11 +56,12 @@ public class Game {
             while (gameRunning) {
                 System.out.println("Current player: " + (currentPlayer == 1 ? player1 : player2));
                 System.out.print("Enter column (1 - " + (size) + "): ");
+                @SuppressWarnings("resource")
                 Scanner inputScanner = new Scanner(System.in);
                 int col = inputScanner.nextInt();
                 char symbol = currentPlayer == 1 ? 'X' : 'O';
-                board.makeMove(col - 1, symbol);
-                if(board.hasWon()) {
+                board.dropPiece(col - 1, symbol);
+                if(board.checkWin(symbol)) {
                     System.out.println("Congratulations " + (currentPlayer == 1 ? player1 : player2) + "! You have won the game!");
                     gameRunning = false;
                 } else if (board.isFull()) {
@@ -67,5 +71,6 @@ public class Game {
                 currentPlayer = currentPlayer == 1 ? 2 : 1;
             }
         } 
+        scanner.close();
     }
 }
